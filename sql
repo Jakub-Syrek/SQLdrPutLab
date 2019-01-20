@@ -47,3 +47,26 @@ UNPIVOT (
 no_of_hours FOR acad_position
 IN ([doctor],[master],[full professor])
 ) AS u
+--window function
+
+--Skill 2.3/3. Using window functions 
+ 
+--23/3.01 Identyfikatory studentów, daty i kwoty dokonanych przez nich wpłat a także sumy wpłat dla każdego studenta oddzielnie 
+--(w tej kolumnie wartości dla każdego studenta mają być takie same) i, w ostatniej kolumnie, sumy wszystkich wpłat 
+--(w tej kolumnie wszystkie wartości maję być takie same). 
+--Dane posortowanie według identyfikatorów studentów a następnie daty wpłat. 
+--73 rekordy. Pierwszy rekord:  1, 2019-10-26, wpłata dzienna: 1300,   suma wpłat studenta: 1670, suma wszystkich wpłat: 70820 Przedostatni rekord: 32, 2019-12-06, 1320, 3220, 7082
+
+SELECT student_id  , date_of_payment  , fee_amount as wplata_dzienna, 
+          SUM(fee_amount) OVER(PARTITION BY student_id  )AS Fee_total ,
+          SUM(fee_amount) OVER() AS Fee_total_total
+FROM tuition_fees
+ORDER BY student_id , date_of_payment 
+
+
+--23/3.02 Identyfikatory i nazwiska studentów, daty i kwoty dokonanych przez nich wpłat a także, dla każdej pozycji,
+-- jaką część sumy wpłat dokonanych przez danego studenta stanowiła dana pozycja oraz jaką część sumy wszystkich wpłat stanowiła ta pozycja. 
+--73 rekordy. Trzeci rekord:  2, Palmer, 2018-10-30, wpłata: 450, procent dla student 1: 100,   procent sumy wszystkich wpłat: 0.64 
+SELECT student_id  , date_of_payment  , fee_amount ,
+CAST (100.0 * fee_amount / (SUM(fee_amount) OVER(PARTITION BY student_id  )) AS procent_1 
+FROM tuition_fees
